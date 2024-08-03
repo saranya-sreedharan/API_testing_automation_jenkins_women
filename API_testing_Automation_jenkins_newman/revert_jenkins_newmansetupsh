@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Function to display success message
+display_success() {
+    echo -e "Changes reverted successfully."
+}
+
+# Get the container ID
+CONTAINER_ID=$(sudo docker ps -aqf "name=jenkins")
+
+# Stop and remove the Jenkins container
+sudo docker stop "$CONTAINER_ID" && sudo docker rm "$CONTAINER_ID"
+
+# Remove Docker volume
+sudo docker volume rm jenkins_data
+
+# Remove Docker image
+sudo docker rmi my-custom-jenkins
+
+# Remove Jenkins home directory
+read -p "Enter the absolute path to jenkins_data directory: " jenkins_data_location
+sudo rm -rf "$jenkins_data_location"
+
+# Remove Dockerfile
+rm Dockerfile
+
+# Remove job_config.xml
+rm job_config.xml
+
+# Remove GitLab credentials XML file
+rm gitlab-credentials.xml
+
+# Remove custom-csp.groovy script
+sudo docker exec -u root jenkins rm -f /usr/share/jenkins/ref/init.groovy.d/custom-csp.groovy
+
+display_success
